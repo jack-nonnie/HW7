@@ -1,0 +1,30 @@
+# Zero-Padding
+X = ZeroPadding2D((3, 3))(X_input)
+
+# Stage 1
+X = Conv2D(64, (7, 7), strides = (2, 2), name = 'conv1', kernel_initializer = glorot_uniform(seed=0))(X)
+X = BatchNormalization(axis = 3, name = 'bn_conv1')(X)
+X = Activation('relu')(X)
+X = MaxPooling2D((3, 3), strides=(2, 2))(X)
+
+# Stage 2 for ResNet
+
+# Save the input value. You'll need this later to add back to the main path.
+X_shortcut = X
+
+X = Conv2D(64, (3, 3), strides=(1, 1), name = 'bn_conv1', kernel_initializer = 'glorot_uniform(seed=0)')(X)
+X = BatchNormalization(axis=3, name= 'bn_conv1')(X)
+X = Activation('relu')(X)
+
+X = Conv2D(64, (3, 3), strides=(1, 1), name = 'bn_conv1', kernel_initializer = 'glorot_uniform(seed=0)')(X)
+X = BatchNormalization(axis=3, name='bn_conv1')(X)
+
+X = Add([X, X_shortcut])
+X = Activation('relu')(X)
+
+# output layer
+X = Flatten()(X)
+X = Dense(classes, activation='softmax', name='fc' + str(classes), kernel_initializer = glorot_uniform(seed=0))(X)
+
+# Create model
+model = Model(inputs = X_input, outputs = X, name='ResNet50')
